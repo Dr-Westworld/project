@@ -8,6 +8,12 @@ import asyncio
 from datetime import datetime
 import json
 import logging
+import os
+from pathlib import Path
+
+# Import our custom services
+from services.ai_service import AIService, create_ai_service
+from document_processor import DocumentProcessor
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -313,7 +319,12 @@ class MockAIService:
         )
 
 # Initialize AI service
-ai_service = MockAIService()
+try:
+    ai_service = create_ai_service()
+    logger.info("AI service initialized successfully")
+except Exception as e:
+    logger.warning(f"Failed to initialize AI service: {str(e)}. Using mock service.")
+    ai_service = MockAIService()
 
 # API Endpoints
 @app.post("/upload", response_model=PlanResponse)
@@ -339,9 +350,19 @@ async def upload_document(
         # Generate plan ID
         plan_id = str(uuid.uuid4())
         
+        # Create uploads directory if it doesn't exist
+        uploads_dir = Path("uploads")
+        uploads_dir.mkdir(exist_ok=True)
+        
+        # Save file to disk
+        file_path = uploads_dir / f"{plan_id}_{file.filename}"
+        with open(file_path, "wb") as f:
+            f.write(file_content)
+        
         # Store document metadata
         documents_db[plan_id] = {
             "filename": file.filename,
+            "file_path": str(file_path),
             "content_type": file.content_type,
             "size": len(file_content),
             "uploaded_at": datetime.now(),
@@ -349,7 +370,7 @@ async def upload_document(
         }
         
         # Process document asynchronously
-        asyncio.create_task(process_document_async(plan_id, file_content, prompt, jurisdiction))
+        asyncio.create_task(process_document_async(plan_id, str(file_path), prompt, jurisdiction))
         
         return PlanResponse(
             planId=plan_id,
@@ -362,15 +383,23 @@ async def upload_document(
         logger.error(f"Error uploading document: {str(e)}")
         raise HTTPException(status_code=500, detail="Internal server error")
 
-async def process_document_async(plan_id: str, file_content: bytes, prompt: str, jurisdiction: str = None):
+async def process_document_async(plan_id: str, file_path: str, prompt: str, jurisdiction: str = None):
     """Process document asynchronously"""
     try:
         # Process document with AI service
-        plan = await ai_service.process_document(file_content, prompt, jurisdiction)
-        plan.planId = plan_id
+        if hasattr(ai_service, 'process_document') and callable(getattr(ai_service, 'process_document')):
+            # Use real AI service
+            plan_data = await ai_service.process_document(file_path, prompt, jurisdiction)
+        else:
+            # Use mock service
+            plan = await ai_service.process_document(file_path, prompt, jurisdiction)
+            plan_data = plan.dict() if hasattr(plan, 'dict') else plan
+        
+        plan_data['planId'] = plan_id
+        plan_data['status'] = 'ready'
         
         # Store plan in database
-        plans_db[plan_id] = plan.dict()
+        plans_db[plan_id] = plan_data
         
         logger.info(f"Plan {plan_id} processed successfully")
         
@@ -422,8 +451,30 @@ async def get_stage_detail(
     if plan_id not in plans_db:
         raise HTTPException(status_code=404, detail="Plan not found")
     
+    # Get plan data
+    plan_data = plans_db[plan_id]
+    
+    # Find the stage in the plan
+    stage_context = None
+    for stage in plan_data.get('stages', []):
+        if stage.get('id') == stage_id:
+            stage_context = stage.get('title', '') + ' ' + stage.get('description', '')
+            break
+    
+    if not stage_context:
+        raise HTTPException(status_code=404, detail="Stage not found")
+    
     # Get detailed stage information
-    detailed_stage = await ai_service.expand_stage(stage_id)
+    if hasattr(ai_service, 'expand_stage') and callable(getattr(ai_service, 'expand_stage')):
+        # Use real AI service
+        detailed_stage = await ai_service.expand_stage(
+            stage_id, 
+            stage_context, 
+            plan_data.get('jurisdiction')
+        )
+    else:
+        # Use mock service
+        detailed_stage = await ai_service.expand_stage(stage_id)
     
     return detailed_stage
 
@@ -467,11 +518,20 @@ async def chat_with_plan(
         raise HTTPException(status_code=404, detail="Plan not found")
     
     # Generate chat response
-    response = await ai_service.chat_response(
-        plan_id, 
-        chat_message.message, 
-        chat_message.context
-    )
+    if hasattr(ai_service, 'chat_response') and callable(getattr(ai_service, 'chat_response')):
+        # Use real AI service
+        response = await ai_service.chat_response(
+            plan_id, 
+            chat_message.message, 
+            chat_message.context
+        )
+    else:
+        # Use mock service
+        response = await ai_service.chat_response(
+            plan_id, 
+            chat_message.message, 
+            chat_message.context
+        )
     
     return response
 

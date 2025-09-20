@@ -1,13 +1,209 @@
 [project]
-name = "project"
-version = "0.1.0"
-description = "Add your description here"
+name = "legal-document-assistant"
+version = "1.0.0"
+description = "AI-powered Legal Document Assistant that demystifies legal documents and generates step-by-step progress paths"
 readme = "README.md"
 requires-python = ">=3.9"
 
 authors = [
-    { name = "Om Gawade"}
+    { name = "Om Gawade", email = "gawade1420@gmail.com"}
 ]
 
+keywords = ["legal", "ai", "document-processing", "llm", "rag", "fastapi", "react"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Legal Industry",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Topic :: Legal",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+]
 
-dependencies = []
+dependencies = [
+    # FastAPI and web framework
+    "fastapi>=0.104.1",
+    "uvicorn[standard]>=0.24.0",
+    "python-multipart>=0.0.6",
+    "pydantic>=2.5.0",
+    
+    # Authentication and security
+    "python-jose[cryptography]>=3.3.0",
+    "passlib[bcrypt]>=1.7.4",
+    "python-dotenv>=1.0.0",
+    
+    # File handling and async
+    "aiofiles>=23.2.1",
+    "httpx>=0.25.2",
+    
+    # Data processing
+    "pandas>=2.1.4",
+    "numpy>=1.24.3",
+    "scikit-learn>=1.3.2",
+    
+    # AI and ML
+    "transformers>=4.36.2",
+    "torch>=2.1.2",
+    "sentence-transformers>=2.2.2",
+    "openai>=1.0.0",
+    
+    # Vector database
+    "pinecone-client>=2.2.4",
+    
+    # Google Cloud services
+    "google-cloud-documentai>=2.20.1",
+    "google-cloud-aiplatform>=1.38.1",
+    "google-cloud-storage>=2.10.0",
+    "google-auth>=2.23.0",
+    "google-auth-oauthlib>=1.1.0",
+    "google-auth-httplib2>=0.1.1",
+    
+    # Web crawling
+    "scrapy>=2.11.0",
+    "playwright>=1.40.0",
+    "beautifulsoup4>=4.12.2",
+    "requests>=2.31.0",
+    "aiohttp>=3.9.0",
+    
+    # Database and storage
+    "sqlalchemy>=2.0.0",
+    "alembic>=1.12.0",
+    "psycopg2-binary>=2.9.7",
+    
+    # Utilities
+    "python-dateutil>=2.8.2",
+    "pytz>=2023.3",
+    "click>=8.1.0",
+    "rich>=13.7.0",
+    "typer>=0.9.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.4.0",
+    "pytest-asyncio>=0.21.0",
+    "pytest-cov>=4.1.0",
+    "black>=23.9.0",
+    "isort>=5.12.0",
+    "flake8>=6.1.0",
+    "mypy>=1.6.0",
+    "pre-commit>=3.5.0",
+]
+
+test = [
+    "pytest>=7.4.0",
+    "pytest-asyncio>=0.21.0",
+    "pytest-cov>=4.1.0",
+    "pytest-mock>=3.12.0",
+    "httpx>=0.25.2",
+    "aioresponses>=0.7.4",
+]
+
+docs = [
+    "mkdocs>=1.5.0",
+    "mkdocs-material>=9.4.0",
+    "mkdocstrings[python]>=0.24.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/Dr-Westworld/project"
+Documentation = "https://legal-document-assistant.readthedocs.io"
+Repository = "https://github.com/Dr-Westworld/project"
+Issues = "https://github.com/Dr-Westworld/projectissues"
+
+[project.scripts]
+legal-assistant = "backend.main:main"
+legal-crawler = "backend.crawler.legal_crawler:main"
+legal-test = "test_complete_system:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["backend"]
+
+[tool.black]
+line-length = 88
+target-version = ['py39']
+include = '\.pyi?$'
+extend-exclude = '''
+/(
+  # directories
+  \.eggs
+  | \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | build
+  | dist
+)/
+'''
+
+[tool.isort]
+profile = "black"
+multi_line_output = 3
+line_length = 88
+known_first_party = ["backend"]
+
+[tool.mypy]
+python_version = "3.9"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = true
+disallow_incomplete_defs = true
+check_untyped_defs = true
+disallow_untyped_decorators = true
+no_implicit_optional = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+warn_no_return = true
+warn_unreachable = true
+strict_equality = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py", "*_test.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+addopts = [
+    "--strict-markers",
+    "--strict-config",
+    "--verbose",
+    "--cov=backend",
+    "--cov-report=term-missing",
+    "--cov-report=html",
+    "--cov-report=xml",
+]
+markers = [
+    "slow: marks tests as slow (deselect with '-m \"not slow\"')",
+    "integration: marks tests as integration tests",
+    "unit: marks tests as unit tests",
+]
+
+[tool.coverage.run]
+source = ["backend"]
+omit = [
+    "*/tests/*",
+    "*/test_*",
+    "*/__pycache__/*",
+    "*/venv/*",
+    "*/env/*",
+]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "if self.debug:",
+    "if settings.DEBUG",
+    "raise AssertionError",
+    "raise NotImplementedError",
+    "if 0:",
+    "if __name__ == .__main__.:",
+    "class .*\\bProtocol\\):",
+    "@(abc\\.)?abstractmethod",
+]
