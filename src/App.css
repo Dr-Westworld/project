@@ -1,0 +1,125 @@
+/* App.css */
+.App {
+  text-align: left;
+}
+
+/* Stage card animations */
+.stage-container {
+  transition: all 0.3s ease;
+}
+
+.stage-container.level-1 {
+  margin-bottom: 1rem;
+}
+
+.stage-container.level-2 {
+  margin-left: 1rem;
+  margin-bottom: 0.75rem;
+}
+
+.stage-container.level-3 {
+  margin-left: 2rem;
+  margin-bottom: 0.5rem;
+}
+
+.stage-container.level-4 {
+  margin-left: 3rem;
+  margin-bottom: 0.5rem;
+}
+
+/* Smooth transitions for expand/collapse */
+.stage-detail-enter {
+  opacity: 0;
+  transform: translateY(-10px);
+}
+
+.stage-detail-enter-active {
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity 300ms, transform 300ms;
+}
+
+.stage-detail-exit {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.stage-detail-exit-active {
+  opacity: 0;
+  transform: translateY(-10px);
+  transition: opacity 300ms, transform 300ms;
+}
+
+/* Custom scrollbar for chat */
+.chat-messages::-webkit-scrollbar {
+  width: 6px;
+}
+
+.chat-messages::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 3px;
+}
+
+.chat-messages::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 3px;
+}
+
+.chat-messages::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8;
+}
+
+/* Hover effects for interactive elements */
+.stage-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* Loading animation */
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-spin {
+  animation: spin 1s linear infinite;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .stage-container.level-2 {
+    margin-left: 0.5rem;
+  }
+  
+  .stage-container.level-3 {
+    margin-left: 1rem;
+  }
+  
+  .stage-container.level-4 {
+    margin-left: 1.5rem;
+  }
+}
+
+/* Focus states for accessibility */
+.stage-card:focus {
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
+}
+
+button:focus {
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
+}
+
+/* Print styles */
+@media print {
+  .chat-interface {
+    display: none;
+  }
+  
+  .stage-card {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+}

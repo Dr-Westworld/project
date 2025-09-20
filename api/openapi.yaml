@@ -1,0 +1,712 @@
+openapi: 3.0.0
+info:
+  title: Legal Document Assistant API
+  description: API for processing legal documents and generating step-by-step progress paths using AI
+  version: 1.0.0
+  contact:
+    name: Legal Document Assistant Team
+    email: support@legalassistant.com
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+
+servers:
+  - url: https://api.legalassistant.com/v1
+    description: Production server
+  - url: https://staging-api.legalassistant.com/v1
+    description: Staging server
+  - url: http://localhost:8000/v1
+    description: Development server
+
+security:
+  - BearerAuth: []
+  - ApiKeyAuth: []
+
+paths:
+  /upload:
+    post:
+      summary: Upload a legal document for processing
+      description: Upload a PDF or Word document along with a user prompt to generate a progress path
+      tags:
+        - Documents
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                - file
+                - prompt
+              properties:
+                file:
+                  type: string
+                  format: binary
+                  description: PDF or Word document file
+                prompt:
+                  type: string
+                  description: User's description of what they need help with
+                  example: "I need to register my company in California"
+                jurisdiction:
+                  type: string
+                  description: Optional jurisdiction hint
+                  example: "California, USA"
+                document_type:
+                  type: string
+                  enum: [contract, incorporation, litigation, compliance, other]
+                  description: Type of legal document
+      responses:
+        '200':
+          description: Document uploaded successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  planId:
+                    type: string
+                    description: Unique identifier for the generated plan
+                    example: "plan_123456789"
+                  status:
+                    type: string
+                    enum: [pending, processing, ready, failed]
+                    description: Current processing status
+                  message:
+                    type: string
+                    description: Status message
+                  estimatedProcessingTime:
+                    type: integer
+                    description: Estimated processing time in seconds
+                    example: 30
+        '400':
+          description: Bad request - invalid file or missing parameters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '413':
+          description: File too large
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '415':
+          description: Unsupported file type
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /plans/{planId}:
+    get:
+      summary: Get a progress plan
+      description: Retrieve the generated progress plan with all stages
+      tags:
+        - Plans
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: planId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Unique identifier for the plan
+      responses:
+        '200':
+          description: Plan retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Plan'
+        '404':
+          description: Plan not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /plans/{planId}/stages/{stageId}:
+    get:
+      summary: Get detailed information for a specific stage
+      description: Retrieve detailed information and sub-stages for a specific stage
+      tags:
+        - Plans
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: planId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Unique identifier for the plan
+        - name: stageId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Unique identifier for the stage
+        - name: expand_depth
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 5
+            default: 2
+          description: How many levels deep to expand sub-stages
+      responses:
+        '200':
+          description: Stage details retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StageDetail'
+        '404':
+          description: Stage or plan not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /plans/{planId}/stages/{stageId}/complete:
+    post:
+      summary: Mark a stage as completed
+      description: Mark a specific stage as completed or incomplete
+      tags:
+        - Plans
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: planId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Unique identifier for the plan
+        - name: stageId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Unique identifier for the stage
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - completed
+              properties:
+                completed:
+                  type: boolean
+                  description: Whether the stage is completed
+                notes:
+                  type: string
+                  description: Optional notes about completion
+                  example: "Completed successfully, received confirmation email"
+                completion_date:
+                  type: string
+                  format: date-time
+                  description: When the stage was completed
+      responses:
+        '200':
+          description: Stage status updated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  stageId:
+                    type: string
+                  isCompleted:
+                    type: boolean
+                  updatedAt:
+                    type: string
+                    format: date-time
+        '404':
+          description: Stage or plan not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /plans/{planId}/chat:
+    post:
+      summary: Send a chat message about the plan
+      description: Send a message to get AI assistance about the progress plan
+      tags:
+        - Chat
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: planId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Unique identifier for the plan
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - message
+              properties:
+                message:
+                  type: string
+                  description: User's chat message
+                  example: "What documents do I need for stage 2?"
+                context:
+                  type: object
+                  description: Additional context for the AI
+                  properties:
+                    currentStage:
+                      type: string
+                      description: ID of currently active stage
+                    userProgress:
+                      type: object
+                      description: User's progress information
+      responses:
+        '200':
+          description: Chat response generated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  messageId:
+                    type: string
+                    description: Unique identifier for the message
+                  response:
+                    type: string
+                    description: AI-generated response
+                  suggestions:
+                    type: array
+                    items:
+                      type: string
+                    description: Suggested follow-up questions
+                  relatedStages:
+                    type: array
+                    items:
+                      type: string
+                    description: IDs of related stages mentioned in response
+        '404':
+          description: Plan not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /plans/{planId}/revalidate:
+    post:
+      summary: Revalidate a plan with updated information
+      description: Re-run the AI analysis to update the plan with latest information
+      tags:
+        - Plans
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: planId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Unique identifier for the plan
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                force_refresh:
+                  type: boolean
+                  description: Force refresh even if recently updated
+                  default: false
+                additional_context:
+                  type: string
+                  description: Additional context for revalidation
+      responses:
+        '200':
+          description: Plan revalidated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  planId:
+                    type: string
+                  status:
+                    type: string
+                    enum: [pending, processing, ready, failed]
+                  updatedAt:
+                    type: string
+                    format: date-time
+        '404':
+          description: Plan not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /plans/{planId}/export:
+    get:
+      summary: Export plan as PDF or other format
+      description: Export the progress plan in various formats
+      tags:
+        - Plans
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: planId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Unique identifier for the plan
+        - name: format
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: [pdf, json, csv, markdown]
+            default: pdf
+          description: Export format
+        - name: include_completed
+          in: query
+          required: false
+          schema:
+            type: boolean
+            default: true
+          description: Include completed stages in export
+      responses:
+        '200':
+          description: Plan exported successfully
+          content:
+            application/pdf:
+              schema:
+                type: string
+                format: binary
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Plan'
+            text/csv:
+              schema:
+                type: string
+            text/markdown:
+              schema:
+                type: string
+        '404':
+          description: Plan not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /health:
+    get:
+      summary: Health check endpoint
+      description: Check if the API is running and healthy
+      tags:
+        - System
+      responses:
+        '200':
+          description: API is healthy
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: "healthy"
+                  timestamp:
+                    type: string
+                    format: date-time
+                  version:
+                    type: string
+                    example: "1.0.0"
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-API-Key
+
+  schemas:
+    Plan:
+      type: object
+      required:
+        - planId
+        - taskTitle
+        - status
+        - stages
+        - createdAt
+      properties:
+        planId:
+          type: string
+          description: Unique identifier for the plan
+          example: "plan_123456789"
+        taskTitle:
+          type: string
+          description: Title of the task/plan
+          example: "Register Private Limited Company in California"
+        status:
+          type: string
+          enum: [pending, processing, ready, failed]
+          description: Current status of the plan
+        description:
+          type: string
+          description: Detailed description of the plan
+        jurisdiction:
+          type: string
+          description: Legal jurisdiction for the plan
+          example: "California, USA"
+        documentType:
+          type: string
+          enum: [contract, incorporation, litigation, compliance, other]
+          description: Type of legal document processed
+        stages:
+          type: array
+          items:
+            $ref: '#/components/schemas/Stage'
+          description: List of main stages in the plan
+        metadata:
+          type: object
+          properties:
+            totalStages:
+              type: integer
+              description: Total number of stages
+            completedStages:
+              type: integer
+              description: Number of completed stages
+            estimatedTotalTime:
+              type: string
+              description: Estimated total time to complete
+            confidence:
+              type: string
+              enum: [high, medium, low]
+              description: Overall confidence in the plan
+        createdAt:
+          type: string
+          format: date-time
+          description: When the plan was created
+        updatedAt:
+          type: string
+          format: date-time
+          description: When the plan was last updated
+
+    Stage:
+      type: object
+      required:
+        - id
+        - title
+        - shortDescription
+        - isCompleted
+      properties:
+        id:
+          type: string
+          description: Unique identifier for the stage
+          example: "stage_1"
+        title:
+          type: string
+          description: Title of the stage
+          example: "Create Account on Government Portal"
+        shortDescription:
+          type: string
+          description: Brief description of what needs to be done
+          example: "Sign up on the official government website"
+        description:
+          type: string
+          description: Detailed description of the stage
+        isCompleted:
+          type: boolean
+          description: Whether the stage has been completed
+        stageNumber:
+          type: integer
+          description: Sequential number of the stage
+          example: 1
+        estimatedTime:
+          type: string
+          description: Estimated time to complete this stage
+          example: "2-3 hours"
+        requiredDocuments:
+          type: array
+          items:
+            type: string
+          description: Documents required for this stage
+          example: ["Government ID", "Proof of Address"]
+        responsibleParty:
+          type: string
+          enum: [user, lawyer, third_party, system]
+          description: Who is responsible for completing this stage
+        dependencies:
+          type: array
+          items:
+            type: string
+          description: IDs of stages that must be completed first
+        confidence:
+          type: string
+          enum: [high, medium, low]
+          description: Confidence level in this stage's accuracy
+        citations:
+          type: array
+          items:
+            $ref: '#/components/schemas/Citation'
+          description: Sources and references for this stage
+        website:
+          type: string
+          format: uri
+          description: Relevant website URL for this stage
+        warnings:
+          type: array
+          items:
+            type: string
+          description: Important warnings or notes
+        subStages:
+          type: array
+          items:
+            $ref: '#/components/schemas/Stage'
+          description: Nested sub-stages
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    StageDetail:
+      allOf:
+        - $ref: '#/components/schemas/Stage'
+        - type: object
+          properties:
+            detailedInstructions:
+              type: string
+              description: Step-by-step detailed instructions
+            commonIssues:
+              type: array
+              items:
+                type: string
+              description: Common issues and how to resolve them
+            tips:
+              type: array
+              items:
+                type: string
+              description: Helpful tips for completing this stage
+            nextSteps:
+              type: array
+              items:
+                type: string
+              description: What to do after completing this stage
+
+    Citation:
+      type: object
+      required:
+        - url
+        - source_type
+      properties:
+        url:
+          type: string
+          format: uri
+          description: URL of the source
+          example: "https://www.ftb.ca.gov/forms/2019/2019-3520.pdf"
+        title:
+          type: string
+          description: Title of the source
+          example: "California Form 3520 - Limited Liability Company Return"
+        source_type:
+          type: string
+          enum: [government, court, legal_portal, law_firm, other]
+          description: Type of source
+        excerpt:
+          type: string
+          description: Relevant excerpt from the source
+        date:
+          type: string
+          format: date
+          description: Date of the source
+        authority_level:
+          type: string
+          enum: [high, medium, low]
+          description: Authority level of the source
+
+    Error:
+      type: object
+      required:
+        - error
+        - message
+      properties:
+        error:
+          type: string
+          description: Error code
+          example: "VALIDATION_ERROR"
+        message:
+          type: string
+          description: Human-readable error message
+          example: "Invalid file format. Please upload a PDF or Word document."
+        details:
+          type: object
+          description: Additional error details
+        timestamp:
+          type: string
+          format: date-time
+          description: When the error occurred
+
+    ChatMessage:
+      type: object
+      required:
+        - id
+        - type
+        - content
+        - timestamp
+      properties:
+        id:
+          type: string
+          description: Unique identifier for the message
+        type:
+          type: string
+          enum: [user, assistant, system]
+          description: Type of message
+        content:
+          type: string
+          description: Message content
+        timestamp:
+          type: string
+          format: date-time
+          description: When the message was sent
+        metadata:
+          type: object
+          description: Additional message metadata
+          properties:
+            relatedStages:
+              type: array
+              items:
+                type: string
+              description: Stage IDs mentioned in the message
+            confidence:
+              type: number
+              minimum: 0
+              maximum: 1
+              description: Confidence in the response
+
+tags:
+  - name: Documents
+    description: Document upload and processing
+  - name: Plans
+    description: Progress plan management
+  - name: Chat
+    description: AI chat assistance
+  - name: System
+    description: System health and status
