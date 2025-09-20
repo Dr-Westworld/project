@@ -14,6 +14,10 @@ Before you begin, ensure you have the following installed:
 - **Git** - [Download here](https://git-scm.com/)
 - **Docker** (Optional) - [Download here](https://docker.com/)
 
+### **Windows Users**
+- **PowerShell 5.1+** (usually pre-installed)
+- **curl** (Windows 10+ has it built-in, or download from [here](https://curl.se/))
+
 ### **Required Accounts & API Keys**
 - **Google Cloud Platform** account - [Sign up here](https://cloud.google.com/)
 - **OpenAI API Key** - [Get here](https://platform.openai.com/)
@@ -25,7 +29,42 @@ Choose one of the following methods based on your preference:
 
 ---
 
-## **Method 1: Docker (Recommended - Easiest)**
+## **Method 1: Quick Start Script (Easiest)**
+
+### **For Windows Users**
+```cmd
+# 1. Clone the repository
+git clone https://github.com/yourusername/legal-document-assistant.git
+cd legal-document-assistant
+
+# 2. Run quick start script
+quick-start.bat
+# Choose your preferred setup method
+
+# 3. Access the application
+# Frontend: http://localhost:3000
+# Backend: http://localhost:8000
+```
+
+### **For Mac/Linux Users**
+```bash
+# 1. Clone the repository
+git clone https://github.com/yourusername/legal-document-assistant.git
+cd legal-document-assistant
+
+# 2. Run quick start script
+chmod +x quick-start.sh
+./quick-start.sh
+# Choose your preferred setup method
+
+# 3. Access the application
+# Frontend: http://localhost:3000
+# Backend: http://localhost:8000
+```
+
+---
+
+## **Method 2: Docker (Recommended - Easiest)**
 
 ### **Step 1: Clone the Repository**
 ```bash
@@ -263,6 +302,20 @@ GOOGLE_CLOUD_PROJECT_ID=YOUR_PROJECT_ID
 ## 🧪 **Testing the Application**
 
 ### **Run Tests**
+
+#### **For Windows Users**
+```cmd
+# Comprehensive system test
+python test_complete_system.py
+
+# Individual component tests
+test-system.bat
+
+# Using pytest (if using pyproject.toml)
+pytest
+```
+
+#### **For Mac/Linux Users**
 ```bash
 # Comprehensive system test
 python test_complete_system.py
