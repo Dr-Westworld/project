@@ -20,7 +20,7 @@ Before you begin, ensure you have the following installed:
 
 ### **Required Accounts & API Keys**
 - **Google Cloud Platform** account - [Sign up here](https://cloud.google.com/)
-- **OpenAI API Key** - [Get here](https://platform.openai.com/)
+- **Google Gemini API Key** - [Get here](https://makersuite.google.com/app/apikey)
 - **Pinecone Account** - [Sign up here](https://www.pinecone.io/)
 
 ## 🏗️ **Installation Methods**
@@ -88,7 +88,7 @@ GOOGLE_APPLICATION_CREDENTIALS=path/to/your/service-account-key.json
 GOOGLE_CLOUD_PROJECT_ID=your-project-id-here
 
 # AI Service Configuration
-OPENAI_API_KEY=your-openai-api-key-here
+GOOGLE_GEMINI_API_KEY=your-gemini-api-key-here
 PINECONE_API_KEY=your-pinecone-api-key-here
 
 # Security
@@ -277,14 +277,14 @@ GOOGLE_CLOUD_PROJECT_ID=YOUR_PROJECT_ID
 
 ## 🔑 **API Keys Setup**
 
-### **OpenAI API Key**
-1. Go to [OpenAI Platform](https://platform.openai.com/)
-2. Sign up or log in
-3. Go to API Keys section
-4. Create a new API key
+### **Google Gemini API Key**
+1. Go to [Google AI Studio](https://makersuite.google.com/app/apikey)
+2. Sign up or log in with your Google account
+3. Click "Create API Key"
+4. Copy your API key
 5. Add to your `.env` file:
    ```env
-   OPENAI_API_KEY=sk-your-openai-api-key-here
+   GOOGLE_GEMINI_API_KEY=your-gemini-api-key-here
    ```
 
 ### **Pinecone API Key**
@@ -388,7 +388,7 @@ docker-compose logs frontend
 #### **API Key Issues**
 - Verify all API keys are correct in `.env` file
 - Check if Google Cloud credentials file path is correct
-- Ensure OpenAI account has credits
+ - Ensure Google Cloud project has Generative Language API enabled and you have an API key
 - Verify Pinecone account is active
 
 ### **Logs and Debugging**
@@ -401,7 +401,7 @@ docker-compose logs -f backend
 docker-compose logs -f frontend
 
 # Check environment variables
-python -c "import os; print(os.getenv('OPENAI_API_KEY'))"
+python -c "import os; print(os.getenv('GOOGLE_GEMINI_API_KEY'))"
 ```
 
 ---
@@ -475,7 +475,7 @@ git push origin feature/your-feature-name
 - [FastAPI Documentation](https://fastapi.tiangolo.com/)
 - [React Documentation](https://reactjs.org/)
 - [Google Cloud Document AI](https://cloud.google.com/document-ai)
-- [OpenAI API Documentation](https://platform.openai.com/docs)
+- [Google Gemini API Documentation](https://ai.google.dev/docs)
 - [Pinecone Documentation](https://docs.pinecone.io/)
 
 ### **Support**

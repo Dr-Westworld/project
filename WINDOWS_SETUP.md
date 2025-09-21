@@ -145,11 +145,11 @@ test-system.bat
 
 ## 🔑 **API Keys Setup for Windows**
 
-### **1. OpenAI API Key**
-1. Go to [OpenAI Platform](https://platform.openai.com/)
-2. Sign up or log in
-3. Go to API Keys section
-4. Create a new API key
+### **1. Google Gemini API Key**
+1. Go to [Google AI Studio](https://makersuite.google.com/app/apikey)
+2. Sign up or log in with your Google account
+3. Click "Create API Key"
+4. Copy your API key
 5. Run `setup-api-keys.bat` and enter your key
 
 ### **2. Pinecone API Key**

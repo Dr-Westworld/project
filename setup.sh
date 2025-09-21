@@ -55,7 +55,7 @@ SECRET_KEY=your-secret-key-here
 JWT_SECRET_KEY=your-jwt-secret-key-here
 
 # AI Service Configuration
-OPENAI_API_KEY=your-openai-api-key-here
+GOOGLE_GEMINI_API_KEY=your-gemini-api-key-here
 GOOGLE_CLOUD_PROJECT_ID=your-project-id-here
 EOF
 

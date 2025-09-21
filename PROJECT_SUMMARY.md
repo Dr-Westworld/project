@@ -30,7 +30,7 @@ All requested tasks have been completed successfully:
 3. **LLM Integration for Document Processing and Stage Generation** ✅
    - Created `backend/services/ai_service.py` - Main AI service orchestrator
    - Created `backend/document_processor.py` - Google Cloud Document AI integration
-   - Integrated OpenAI GPT models for progress path generation
+   - Integrated Google Gemini (Gemini Pro) for progress path generation
    - Implemented async document processing pipeline
    - Added fallback mock service for development
 
@@ -124,7 +124,7 @@ api/
 - ✅ **Document Processing** - Google Cloud Document AI integration
 - ✅ **Web Crawling** - Intelligent legal source discovery
 - ✅ **Vector Search** - RAG pipeline for intelligent retrieval
-- ✅ **LLM Integration** - OpenAI GPT for progress path generation
+- ✅ **LLM Integration** - Google Gemini (Gemini Pro) for progress path generation
 - ✅ **Real-time Processing** - Async document processing
 
 ### **Technical Features**

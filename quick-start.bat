@@ -66,7 +66,7 @@ if not exist "backend\.env" (
     echo [INFO] Creating environment configuration...
     copy backend\env.example backend\.env
     echo ⚠️  Please edit backend\.env with your API keys before continuing
-    echo [INFO] Required: OPENAI_API_KEY, PINECONE_API_KEY, GOOGLE_CLOUD_PROJECT_ID
+    echo [INFO] Required: GOOGLE_GEMINI_API_KEY, PINECONE_API_KEY, GOOGLE_CLOUD_PROJECT_ID
     pause
 )
 

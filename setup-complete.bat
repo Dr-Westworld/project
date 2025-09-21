@@ -174,12 +174,12 @@ echo [INFO] Creating API keys setup script...
 echo @echo off
 echo echo 🔑 Setting up API keys...
 echo.
-echo REM OpenAI API Key
-echo echo Please enter your OpenAI API key:
-echo set /p OPENAI_KEY=OpenAI API Key: 
-echo if not "%%OPENAI_KEY%%"=="" ^(
-echo     powershell -Command "^(Get-Content backend\.env^) -replace 'your-openai-api-key-here', '%%OPENAI_KEY%%' ^| Set-Content backend\.env"
-echo     echo ✅ OpenAI API key configured
+echo REM Google Gemini API Key
+echo echo Please enter your Google Gemini API key:
+echo set /p GEMINI_KEY=Google Gemini API Key: 
+echo if not "%%GEMINI_KEY%%"=="" ^(
+echo     powershell -Command "^(Get-Content backend\.env^) -replace 'your-gemini-api-key-here', '%%GEMINI_KEY%%' ^| Set-Content backend\.env"
+echo     echo ✅ Google Gemini API key configured
 echo ^)
 echo.
 echo REM Pinecone API Key
@@ -274,7 +274,7 @@ echo   ├── Frontend (React + Tailwind)
 echo   ├── Backend (FastAPI + AI Services)
 echo   ├── Web Crawler (Scrapy + Playwright)
 echo   ├── Vector Store (Pinecone)
-echo   ├── RAG Pipeline (OpenAI + Custom)
+echo   ├── RAG Pipeline (Google Gemini + Custom)
 echo   └── Document Processing (Google Cloud AI)
 echo.
 echo 🔧 Setup Scripts:

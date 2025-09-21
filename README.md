@@ -10,7 +10,7 @@ This is a **full-stack Gen AI MVP** that includes:
 - ✅ **Google Cloud Document AI** integration for document processing
 - ✅ **Web Crawler** for authoritative legal sources
 - ✅ **Vector Database & RAG Pipeline** for intelligent retrieval
-- ✅ **OpenAI Integration** for LLM-powered responses
+- ✅ **Google Gemini Integration** for LLM-powered responses
 - ✅ **Docker Configuration** for easy deployment
 - ✅ **Comprehensive Testing** suite
 
@@ -142,7 +142,7 @@ docker-compose up -d
 - Node.js 16+ and npm
 - Python 3.8+
 - Google Cloud Platform account
-- OpenAI API key
+- Google Gemini API key
 - Pinecone account
 - Git
 

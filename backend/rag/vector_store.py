@@ -15,7 +15,7 @@ import re
 from sentence_transformers import SentenceTransformer
 import pinecone
 from pinecone import Pinecone, ServerlessSpec
-import openai
+import google.generativeai as genai
 from google.cloud import aiplatform
 from google.cloud.aiplatform.gapic.schema import predict
 import os
@@ -281,10 +281,10 @@ class VectorStore:
 class RAGPipeline:
     """Retrieval-Augmented Generation pipeline for legal documents"""
     
-    def __init__(self, vector_store: VectorStore, openai_api_key: str):
+    def __init__(self, vector_store: VectorStore, gemini_api_key: str):
         self.vector_store = vector_store
-        self.openai_api_key = openai_api_key
-        openai.api_key = openai_api_key
+        self.gemini_api_key = gemini_api_key
+        genai.configure(api_key=gemini_api_key)
         self.chunker = DocumentChunker()
     
     def process_document(self, document_content: str, metadata: Dict[str, Any] = None) -> bool:
@@ -340,18 +340,20 @@ class RAGPipeline:
             # Create prompt based on task type
             prompt = self.create_prompt(query, context_text, task_type)
             
-            # Generate response using OpenAI
-            response = openai.ChatCompletion.create(
-                model="gpt-3.5-turbo",
-                messages=[
-                    {"role": "system", "content": "You are a legal assistant that helps users understand legal processes and documents. Provide accurate, helpful information based on the provided context."},
-                    {"role": "user", "content": prompt}
-                ],
-                max_tokens=1000,
-                temperature=0.3
+            # Generate response using Gemini
+            model = genai.GenerativeModel('gemini-pro')
+            
+            system_instruction = "You are a legal assistant that helps users understand legal processes and documents. Provide accurate, helpful information based on the provided context."
+            
+            response = model.generate_content(
+                f"{system_instruction}\n\n{prompt}",
+                generation_config=genai.types.GenerationConfig(
+                    max_output_tokens=1000,
+                    temperature=0.3,
+                )
             )
             
-            return response.choices[0].message.content.strip()
+            return response.text.strip()
             
         except Exception as e:
             logger.error(f"Error generating response: {str(e)}")
@@ -474,18 +476,21 @@ Format as JSON with the following structure:
 }}
 """
             
-            response = openai.ChatCompletion.create(
-                model="gpt-3.5-turbo",
-                messages=[
-                    {"role": "system", "content": "You are a legal expert that creates detailed, accurate progress paths for legal processes. Always provide structured, actionable information."},
-                    {"role": "user", "content": prompt}
-                ],
-                max_tokens=2000,
-                temperature=0.3
+            # Generate response using Gemini
+            model = genai.GenerativeModel('gemini-pro')
+            
+            system_instruction = "You are a legal expert that creates detailed, accurate progress paths for legal processes. Always provide structured, actionable information."
+            
+            response = model.generate_content(
+                f"{system_instruction}\n\n{prompt}",
+                generation_config=genai.types.GenerationConfig(
+                    max_output_tokens=2000,
+                    temperature=0.3,
+                )
             )
             
             # Parse JSON response
-            response_text = response.choices[0].message.content.strip()
+            response_text = response.text.strip()
             
             # Extract JSON from response (in case there's extra text)
             json_start = response_text.find('{')

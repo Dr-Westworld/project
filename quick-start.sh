@@ -69,7 +69,7 @@ case $choice in
             print_status "Creating environment configuration..."
             cp backend/env.example backend/.env
             print_warning "Please edit backend/.env with your API keys before continuing"
-            print_status "Required: OPENAI_API_KEY, PINECONE_API_KEY, GOOGLE_CLOUD_PROJECT_ID"
+            print_status "Required: GOOGLE_GEMINI_API_KEY, PINECONE_API_KEY, GOOGLE_CLOUD_PROJECT_ID"
             read -p "Press Enter after configuring your .env file..."
         fi
         

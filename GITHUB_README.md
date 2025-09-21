@@ -61,7 +61,7 @@ python main.py
 - **Docker** (Optional) - [Download](https://docker.com/)
 
 ### **API Keys Required**
-- **OpenAI API Key** - [Get here](https://platform.openai.com/)
+- **Google Gemini API Key** - [Get here](https://makersuite.google.com/app/apikey)
 - **Pinecone Account** - [Sign up](https://www.pinecone.io/)
 - **Google Cloud Account** - [Sign up](https://cloud.google.com/)
 
@@ -70,7 +70,7 @@ python main.py
 ```
 ┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
 │   React UI      │    │   FastAPI       │    │   AI Services   │
-│   - Stage Cards │◄──►│   - REST API    │◄──►│   - OpenAI      │
+│   - Stage Cards │◄──►│   - REST API    │◄──►│   - Gemini      │
 │   - Chat        │    │   - Auth        │    │   - Document AI │
 │   - Upload      │    │   - Processing  │    │   - Web Crawler │
 └─────────────────┘    └─────────────────┘    └─────────────────┘
@@ -96,7 +96,7 @@ python main.py
 - **Document AI** - Google Cloud integration for document analysis
 - **Web Crawling** - Real-time legal source discovery
 - **Vector Search** - Intelligent document retrieval
-- **LLM Integration** - OpenAI GPT for progress generation
+- **LLM Integration** - Google Gemini for progress generation
 
 ### **Developer Experience**
 - **Complete API** - FastAPI with OpenAPI documentation
@@ -145,7 +145,7 @@ Copy `backend/env.example` to `backend/.env` and configure:
 
 ```env
 # Required API Keys
-OPENAI_API_KEY=your-openai-api-key
+GOOGLE_GEMINI_API_KEY=your-gemini-api-key
 PINECONE_API_KEY=your-pinecone-api-key
 GOOGLE_CLOUD_PROJECT_ID=your-project-id
 
@@ -185,7 +185,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ## 🙏 **Acknowledgments**
 
 - Google Cloud AI services
-- OpenAI for LLM capabilities
+- Google Gemini for LLM capabilities
 - Pinecone for vector storage
 - React and FastAPI communities
 - Open source contributors

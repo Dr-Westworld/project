@@ -210,12 +210,12 @@ cat > setup_api_keys.sh << 'EOF'
 
 echo "🔑 Setting up API keys..."
 
-# OpenAI API Key
-echo "Please enter your OpenAI API key:"
-read -p "OpenAI API Key: " OPENAI_KEY
-if [ ! -z "$OPENAI_KEY" ]; then
-    sed -i "s/your-openai-api-key-here/$OPENAI_KEY/g" backend/.env
-    echo "✅ OpenAI API key configured"
+# Google Gemini API Key
+echo "Please enter your Google Gemini API key:"
+read -p "Google Gemini API Key: " GEMINI_KEY
+if [ ! -z "$GEMINI_KEY" ]; then
+    sed -i "s/your-gemini-api-key-here/$GEMINI_KEY/g" backend/.env
+    echo "✅ Google Gemini API key configured"
 fi
 
 # Pinecone API Key
@@ -421,7 +421,7 @@ This guide will help you set up the complete Legal Document Assistant system wit
 - Google Cloud Document AI for document processing
 - Web crawler for legal sources
 - Vector database and RAG pipeline
-- OpenAI integration for LLM responses
+ - Google Gemini integration for LLM responses
 
 ## 🚀 Quick Start
 
@@ -452,7 +452,7 @@ chmod +x setup_complete.sh
 - Node.js 16+
 - Python 3.8+
 - Google Cloud account
-- OpenAI API key
+- Google Gemini API key
 - Pinecone account
 
 ### Frontend Setup
@@ -475,7 +475,7 @@ playwright install
 ### Environment Configuration
 Copy `backend/env.example` to `backend/.env` and configure:
 - Google Cloud credentials
-- OpenAI API key
+- Google Gemini API key (set `GOOGLE_GEMINI_API_KEY`)
 - Pinecone API key
 - Database settings
 
@@ -490,8 +490,12 @@ Copy `backend/env.example` to `backend/.env` and configure:
 3. Create a service account with necessary permissions
 4. Download the service account key JSON file
 
+- **Pinecone**: Get from https://www.pinecone.io/
+- **Google Cloud**: Create service account and download key
 ### API Keys
-- **OpenAI**: Get from https://platform.openai.com/
+- **Google Gemini (Generative AI)**: Get an API key from Google Cloud Console and enable the Generative Language API
+- **Pinecone**: Get from https://www.pinecone.io/
+- **Google Cloud**: Create service account and download key
 - **Pinecone**: Get from https://www.pinecone.io/
 - **Google Cloud**: Create service account and download key
 
@@ -503,7 +507,7 @@ Copy `backend/env.example` to `backend/.env` and configure:
 - **Document Processing**: Google Cloud Document AI
 - **Web Crawling**: Scrapy + Playwright
 - **Vector Store**: Pinecone
-- **LLM**: OpenAI GPT models
+- **LLM**: Google Gemini (Gemini Pro or appropriate model)
 - **RAG Pipeline**: Custom implementation
 
 ### Data Flow
@@ -544,7 +548,7 @@ services:
     ports:
       - "8000:8000"
     environment:
-      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - GOOGLE_GEMINI_API_KEY=${GOOGLE_GEMINI_API_KEY}
       - PINECONE_API_KEY=${PINECONE_API_KEY}
   
   frontend:
@@ -609,7 +613,7 @@ echo "  ├── Frontend (React + Tailwind)"
 echo "  ├── Backend (FastAPI + AI Services)"
 echo "  ├── Web Crawler (Scrapy + Playwright)"
 echo "  ├── Vector Store (Pinecone)"
-echo "  ├── RAG Pipeline (OpenAI + Custom)"
+echo "  ├── RAG Pipeline (Google Gemini + Custom)"
 echo "  └── Document Processing (Google Cloud AI)"
 echo ""
 echo "🔧 Setup Scripts:"

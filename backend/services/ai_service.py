@@ -25,7 +25,7 @@ class AIService:
     
     def __init__(self, 
                  pinecone_api_key: str,
-                 openai_api_key: str,
+                 gemini_api_key: str,
                  google_cloud_project: str = None,
                  google_credentials_path: str = None):
         """
@@ -33,12 +33,12 @@ class AIService:
         
         Args:
             pinecone_api_key: Pinecone API key for vector storage
-            openai_api_key: OpenAI API key for LLM generation
+            gemini_api_key: Google Gemini API key for LLM generation
             google_cloud_project: Google Cloud project ID
             google_credentials_path: Path to Google Cloud credentials JSON
         """
         self.pinecone_api_key = pinecone_api_key
-        self.openai_api_key = openai_api_key
+        self.gemini_api_key = gemini_api_key
         self.google_cloud_project = google_cloud_project
         self.google_credentials_path = google_credentials_path
         
@@ -63,7 +63,7 @@ class AIService:
             # Initialize RAG pipeline
             self.rag_pipeline = RAGPipeline(
                 vector_store=self.vector_store,
-                openai_api_key=self.openai_api_key
+                gemini_api_key=self.gemini_api_key
             )
             
             # Initialize document processor
@@ -293,21 +293,19 @@ class AIService:
             Format as JSON with subStages array.
             """
             
-            # Generate response using OpenAI
-            import openai
-            openai.api_key = self.openai_api_key
-            
-            response = openai.ChatCompletion.create(
-                model="gpt-3.5-turbo",
-                messages=[
-                    {"role": "system", "content": "You are a legal expert that creates detailed, actionable sub-steps for legal processes."},
-                    {"role": "user", "content": prompt}
-                ],
+            # Generate response using Google Gemini
+            from .gemini_client import generate_text
+
+            system_msg = "You are a legal expert that creates detailed, actionable sub-steps for legal processes."
+            full_prompt = system_msg + "\n\n" + prompt
+
+            response_text = generate_text(
+                prompt=full_prompt,
+                model="gemini-pro",
+                api_key=self.gemini_api_key,
                 max_tokens=1000,
                 temperature=0.3
             )
-            
-            response_text = response.choices[0].message.content.strip()
             
             # Try to parse JSON response
             try:
@@ -426,7 +424,7 @@ def create_ai_service() -> AIService:
     """Create AI service with environment variables"""
     return AIService(
         pinecone_api_key=os.getenv('PINECONE_API_KEY'),
-        openai_api_key=os.getenv('OPENAI_API_KEY'),
+        gemini_api_key=os.getenv('GOOGLE_GEMINI_API_KEY'),
         google_cloud_project=os.getenv('GOOGLE_CLOUD_PROJECT_ID'),
         google_credentials_path=os.getenv('GOOGLE_APPLICATION_CREDENTIALS')
     )

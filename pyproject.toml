@@ -47,7 +47,7 @@ dependencies = [
     "transformers>=4.36.2",
     "torch>=2.1.2",
     "sentence-transformers>=2.2.2",
-    "openai>=1.0.0",
+    "google-generativeai>=0.3.2",
     
     # Vector database
     "pinecone-client>=2.2.4",
@@ -204,6 +204,6 @@ exclude_lines = [
     "raise NotImplementedError",
     "if 0:",
     "if __name__ == .__main__.:",
-    "class .*\\bProtocol\\):",
+    "class .*\\bProtocol\\:",
     "@(abc\\.)?abstractmethod",
 ]
